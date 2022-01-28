@@ -1,46 +1,22 @@
 ﻿drop function IF EXISTS NbPermanentShows
 go
 
-CREATE FUNCTION NbPermanentShows(@parkName varchar) RETURNS int
+CREATE FUNCTION NbPermanentShows(@parkName varchar(30)) RETURNS int
 AS
 BEGIN
 	Declare @spectaplesPermanents int;
+	Declare @hasParkName int;
 
-    DECLARE @id AS int
-    DECLARE @name AS varchar(30)
-    DECLARE @desc AS varchar(30)
-    DECLARE @resultCount as int
-    set @resultCount = 0;
+	-- If the park @hasParkName is zero, the the park name doesn't exist
+	set @hasParkName = (select count(*) from dbo.parks as p where p.name = @parkName)
 
-    PRINT '-------- EMPLOYEE DETAILS --------';
+	if @hasParkName = 0
+		return -1
+	
+	set @spectaplesPermanents = (select count(*) from dbo.parks as p
+	Inner join shows as s on p.id=s.parks_id 
+	where p.name = @parkName and s.permanent = 1);
 
-    DECLARE cPony CURSOR FOR
-        SELECT id, [name], [description] FROM pony Where [description] = @searchedName
-
-        OPEN cPony
-
-        FETCH NEXT FROM cPony
-            INTO @id, @name, @desc
-
-            print 'Employee_ID  Employee_Name   Employee_Description'
-
-            WHILE @@FETCH_STATUS = 0
-                BEGIN
-                    print '   ' + CAST(@id as varchar(10)) + '           ' + cast(@name as varchar(20)) + '           ' + cast(@desc as varchar(20))
-
-                    set @resultCount += 1;
-
-                    FETCH NEXT FROM cPony
-                INTO @id, @name, @desc
-
-                END
-        CLOSE cPony;
-    DEALLOCATE cPony;
-
-    If @resultCount = 0
-        Begin
-            print 'Aucun résultat trouvé :<';
-        End
 
 return @spectaplesPermanents;
 END
