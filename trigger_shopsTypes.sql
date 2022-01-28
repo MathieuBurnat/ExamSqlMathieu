@@ -6,8 +6,6 @@ on Shops
 instead of insert, update  
 as
 begin
-	-- [name], openingtime, closingtime, parks_id, types_id, locations_id
-
 	Declare @parkTypesAmmount int
 	Declare @name as varchar(45)
 	Declare @openingtime time
@@ -15,7 +13,9 @@ begin
 	Declare @parks_id int
 	Declare @types_id int
 	Declare @locations_id int
+	Declare @typeName varchar(45)
 
+	-- Open the cursor
 	DECLARE cShop CURSOR FOR
 		select [name], openingtime, closingtime, parks_id, types_id, locations_id from INSERTED
 		OPEN cShop
@@ -33,9 +33,16 @@ begin
 							insert into shops ([name], openingtime, closingtime, parks_id, types_id, locations_id) 
 							values (@name, @openingtime, @closingtime, @parks_id, @types_id, @locations_id);
 						END
-					else -- Otherwise, print an indication and continue the insertion
-						print 'Error : Sorry, there are already two shops with the same types that exist into the park.'
-					
+					else 
+						Begin
+						-- Otherwise, print an indication and continue the insertion
+							-- Bonus : Print the type name
+							set @typeName = (select distinct t.name from shops as s
+							Inner join [types] as t on t.id = s.types_id where types_id=@types_id)
+
+							-- Display the error message
+							print 'Error : Trop de magasins du type ' + @typeName
+						End
 					FETCH NEXT FROM cShop
 				INTO @name, @openingtime, @closingtime, @parks_id, @types_id, @locations_id
 				END
