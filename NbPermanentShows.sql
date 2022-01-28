@@ -1,7 +1,7 @@
 ﻿drop function IF EXISTS NbPermanentShows
 go
 
-CREATE FUNCTION NbPermanentShows(@parkName varchar(30)) RETURNS int
+CREATE FUNCTION NbPermanentShows(@parkName varchar(45)) RETURNS int
 AS
 BEGIN
 	Declare @spectaplesPermanents int;
